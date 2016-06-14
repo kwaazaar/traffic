@@ -24,8 +24,9 @@ angular.module('starter.controllers', [])
 
           var mapOptions = {
             center: myLatlng,
-            zoom: 16,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
+            zoom: 11, // org=16
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            streetViewControl: false
           };
 
           var map = new google.maps.Map(document.getElementById("map"), mapOptions);
@@ -33,6 +34,16 @@ angular.module('starter.controllers', [])
           trafficLayer.setMap(map);
           
           $scope.map = map;
+          google.maps.event.addListenerOnce($scope.map, 'idle', function(){
+          
+            var marker = new google.maps.Marker({
+                map: $scope.map,
+                animation: google.maps.Animation.DROP,
+                position: myLatlng
+            });      
+          
+          });
+
           loading.hide();
           console.log('Success, lat/lng: ', lat, long);
         }, function (error) {
