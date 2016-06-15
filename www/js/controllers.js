@@ -2,8 +2,8 @@ angular.module('starter.controllers', [])
 
   .controller('MapCtrl', function ($scope, $ionicLoading, $cordovaGeolocation) {
 
-    ionic.Platform.ready(function () {
-
+    function refresh() {
+      console.log('Refreshing...');
 
       var loading = $ionicLoading.show({
         template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
@@ -26,22 +26,23 @@ angular.module('starter.controllers', [])
             center: myLatlng,
             zoom: 11, // org=16
             mapTypeId: google.maps.MapTypeId.ROADMAP,
-            streetViewControl: false
+            //streetViewControl: false,
+            disableDefaultUI: true
           };
 
           var map = new google.maps.Map(document.getElementById("map"), mapOptions);
           var trafficLayer = new google.maps.TrafficLayer();
           trafficLayer.setMap(map);
-          
+
           $scope.map = map;
-          google.maps.event.addListenerOnce($scope.map, 'idle', function(){
-          
+          google.maps.event.addListenerOnce($scope.map, 'idle', function () {
+
             var marker = new google.maps.Marker({
-                map: $scope.map,
-                animation: google.maps.Animation.DROP,
-                position: myLatlng
-            });      
-          
+              map: $scope.map,
+              animation: google.maps.Animation.DROP,
+              position: myLatlng
+            });
+
           });
 
           loading.hide();
@@ -50,6 +51,12 @@ angular.module('starter.controllers', [])
           loading.hide();
           console.log(error);
         });
+    }
+
+    ionic.Platform.ready(function () {
+
+      // Start with refresh
+      refresh();
 
     });
   });
