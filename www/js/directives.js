@@ -1,6 +1,6 @@
 angular.module('starter.directives', [])
 
-.directive('map', function() {
+.directive('map2', function() {
   return {
     restrict: 'E',
     scope: {

@@ -1,77 +1,99 @@
 angular.module('starter.controllers', [])
 
-  .controller('MapCtrl', function ($scope, $ionicLoading, $cordovaGeolocation) {
-    
-    var marker = null;
+    .controller('MapCtrl', ['$scope', '$ionicLoading', '$cordovaGeolocation', 'storage',
+        function($scope, $ionicLoading, $cordovaGeolocation, storage) {
 
-    $scope.createTheMap = function() {
-      console.log('createTheMap()');
-          var mapOptions = {
-            center: {lat: -34.397, lng: 150.644},
-            zoom: 11,
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            disableDefaultUI: true
-          };
+            var marker = null;
 
-          var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-          var trafficLayer = new google.maps.TrafficLayer();
-          trafficLayer.setMap(map);
-          $scope.map = map;      
-    }
+            $scope.createTheMap = function() {
+                
+                // Loading last position
+                var lastPos = new google.maps.LatLng(
+                  storage.LoadData('lastPos.lat') || -34.397,
+                  storage.LoadData('lastPos.lng') || 150.644);
+                var lastZoomLevel = storage.LoadData('lastZoomLevel') || 11;
 
-    $scope.centerOnMe = function() {
-      console.log('centerOnMe()');
+                console.log('lastPos: ', lastPos);
 
-      // Remove existing marker
-      if (marker !== null) {
-        marker.setMap(null);
-        marker = null;
-      }
+                console.log('createTheMap()');
+                var mapOptions = {
+                    center: lastPos,
+                    zoom: lastZoomLevel,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    disableDefaultUI: true
+                };
 
-      $ionicLoading.show({
-        template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location...'
-      });
+                var map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-      var posOptions = {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 0
-      };
+                map.addListener('center_changed', function() {
+                  var newCenter = $scope.map.getCenter();
+                  storage.SaveData('lastPos.lat', newCenter.lat());
+                  storage.SaveData('lastPos.lng', newCenter.lng());
+                });
+                map.addListener('zoom_changed', function() {
+                  var newZoom = $scope.map.getZoom();
+                  storage.SaveData('lastZoomLevel', newZoom);
+                });
+                
+                var trafficLayer = new google.maps.TrafficLayer();
+                trafficLayer.setMap(map);
+                $scope.map = map;
+            }
 
-      $cordovaGeolocation.getCurrentPosition(posOptions)
-        .then(function (position) {
-          var lat = position.coords.latitude;
-          var long = position.coords.longitude;
+            $scope.centerOnMe = function() {
+                console.log('centerOnMe()');
 
-          var myLatlng = new google.maps.LatLng(lat, long);
-          $scope.map.setCenter(myLatlng);
+                // Remove existing marker
+                if (marker !== null) {
+                    marker.setMap(null);
+                    marker = null;
+                }
 
-          var newMarker = new google.maps.Marker({
-            map: $scope.map,
-            animation: null,//google.maps.Animation.DROP,
-            position: myLatlng
-          });
-          marker = newMarker;
+                $ionicLoading.show({
+                    template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location...'
+                });
 
-          $ionicLoading.hide();
-          console.log('Success, lat/lng: ', lat, long);
+                var posOptions = {
+                    enableHighAccuracy: true,
+                    timeout: 20000,
+                    maximumAge: 0
+                };
 
-        }, function (error) {
-          $ionicLoading.hide();
-          console.log('Could not get position: ', error);
-        });
-    }
+                $cordovaGeolocation.getCurrentPosition(posOptions)
+                    .then(function(position) {
+                        var lat = position.coords.latitude;
+                        var long = position.coords.longitude;
 
-    $scope.refresh = function() {
-      console.log('Refreshing...');
-      $scope.createTheMap();
-      $scope.centerOnMe();
-    }
+                        var myLatlng = new google.maps.LatLng(lat, long);
+                        $scope.map.setCenter(myLatlng);
+                        $scope.map.setZoom(11);
 
-    ionic.Platform.ready(function () {
+                        var newMarker = new google.maps.Marker({
+                            map: $scope.map,
+                            animation: null,//google.maps.Animation.DROP,
+                            position: myLatlng
+                        });
+                        marker = newMarker;
 
-      // Start with refresh
-      $scope.refresh();
+                        $ionicLoading.hide();
+                        storage.SaveData('lastPos.lat', lat);
+                        storage.SaveData('lastPos.lng', long);
+                        console.log('Success, lat/lng: ', lat, long);
 
-    });
-  });
+                    }, function(error) {
+                        $ionicLoading.hide();
+                        console.log('Could not get position: ', error);
+                    });
+            }
+
+            $scope.refresh = function() {
+                console.log('Refreshing...');
+                $scope.createTheMap();
+                //$scope.centerOnMe();
+            }
+
+            ionic.Platform.ready(function() {
+                // Start with refresh
+                $scope.refresh();
+            });
+        }]);

@@ -1,7 +1,7 @@
 {
   "name": "traffic",
   "version": "1.1.1",
-  "description": "traffic: An Ionic project",
+  "description": "traffic: Quick traffic overview",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^2.0.4",
