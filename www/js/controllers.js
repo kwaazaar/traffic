@@ -25,10 +25,11 @@ angular.module('starter.controllers', [])
       // Remove existing marker
       if (marker !== null) {
         marker.setMap(null);
+        marker = null;
       }
 
       $ionicLoading.show({
-        template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
+        template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location...'
       });
 
       var posOptions = {
@@ -43,21 +44,18 @@ angular.module('starter.controllers', [])
           var long = position.coords.longitude;
 
           var myLatlng = new google.maps.LatLng(lat, long);
-
           $scope.map.setCenter(myLatlng);
 
-          google.maps.event.addListenerOnce($scope.map, 'idle', function () {
-
-            marker = new google.maps.Marker({
-              map: $scope.map,
-              animation: google.maps.Animation.DROP,
-              position: myLatlng
-            });
-
+          var newMarker = new google.maps.Marker({
+            map: $scope.map,
+            animation: null,//google.maps.Animation.DROP,
+            position: myLatlng
           });
+          marker = newMarker;
 
           $ionicLoading.hide();
           console.log('Success, lat/lng: ', lat, long);
+
         }, function (error) {
           $ionicLoading.hide();
           console.log('Could not get position: ', error);
