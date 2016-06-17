@@ -30,20 +30,18 @@
   <ion-pane>
     <ion-header-bar class="bar-calm">
       <h1 class="title">Traffic</h1>
-      <a ng-click="refresh()" class="button button-icon icon ion-refresh"></a>
-      <a ng-click="centerOnMe()" class="button button-icon icon ion-pinpoint"></a>
     </ion-header-bar>
 
-    <ion-content>
+    <ion-content scroll="false">
       <div id="map" data-tap-disabled="true"></div>
     </ion-content>
 
-    <!--
+    
     <ion-footer-bar class="bar-stable">
-      <a ng-click="refresh()" class="button button-icon icon ion-refresh"></a>
-      <a ng-click="centerOnMe()" class="button button-icon icon ion-pinpoint"></a>
+      <button ng-click="refresh()" class="button button-icon icon ion-refresh"></button>
+      <button ng-click="centerOnMe()" class="button button-icon icon ion-pinpoint"></button>
     </ion-footer-bar>
-    -->
+    
   </ion-pane>
 </body>
 

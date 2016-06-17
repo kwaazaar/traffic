@@ -1,11 +1,33 @@
 angular.module('starter.controllers', [])
 
   .controller('MapCtrl', function ($scope, $ionicLoading, $cordovaGeolocation) {
+    
+    var marker = null;
 
-    function refresh() {
-      console.log('Refreshing...');
+    $scope.createTheMap = function() {
+      console.log('createTheMap()');
+          var mapOptions = {
+            center: {lat: -34.397, lng: 150.644},
+            zoom: 11,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            disableDefaultUI: true
+          };
 
-      var loading = $ionicLoading.show({
+          var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+          var trafficLayer = new google.maps.TrafficLayer();
+          trafficLayer.setMap(map);
+          $scope.map = map;      
+    }
+
+    $scope.centerOnMe = function() {
+      console.log('centerOnMe()');
+
+      // Remove existing marker
+      if (marker !== null) {
+        marker.setMap(null);
+      }
+
+      $ionicLoading.show({
         template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
       });
 
@@ -22,22 +44,11 @@ angular.module('starter.controllers', [])
 
           var myLatlng = new google.maps.LatLng(lat, long);
 
-          var mapOptions = {
-            center: myLatlng,
-            zoom: 11, // org=16
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-            //streetViewControl: false,
-            disableDefaultUI: true
-          };
+          $scope.map.setCenter(myLatlng);
 
-          var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-          var trafficLayer = new google.maps.TrafficLayer();
-          trafficLayer.setMap(map);
-
-          $scope.map = map;
           google.maps.event.addListenerOnce($scope.map, 'idle', function () {
 
-            var marker = new google.maps.Marker({
+            marker = new google.maps.Marker({
               map: $scope.map,
               animation: google.maps.Animation.DROP,
               position: myLatlng
@@ -45,18 +56,24 @@ angular.module('starter.controllers', [])
 
           });
 
-          loading.hide();
+          $ionicLoading.hide();
           console.log('Success, lat/lng: ', lat, long);
         }, function (error) {
-          loading.hide();
-          console.log(error);
+          $ionicLoading.hide();
+          console.log('Could not get position: ', error);
         });
+    }
+
+    $scope.refresh = function() {
+      console.log('Refreshing...');
+      $scope.createTheMap();
+      $scope.centerOnMe();
     }
 
     ionic.Platform.ready(function () {
 
       // Start with refresh
-      refresh();
+      $scope.refresh();
 
     });
   });
