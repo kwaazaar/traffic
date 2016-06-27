@@ -9,11 +9,11 @@ angular.module('starter.controllers', [])
                 
                 // Loading last position
                 var lastPos = new google.maps.LatLng(
-                  storage.LoadData('lastPos.lat') || -34.397,
-                  storage.LoadData('lastPos.lng') || 150.644);
+                  storage.LoadData('lastPos.lat') || 52.25356814179706, // Default=Amersfoort (ongeveer)
+                  storage.LoadData('lastPos.lng') || 5.542088182266065);
                 var lastZoomLevel = storage.LoadData('lastZoomLevel') || 11;
 
-                console.log('lastPos: ', lastPos);
+                console.log('lastPos: ', lastPos.lng(), lastPos.lat());
 
                 console.log('createTheMap()');
                 var mapOptions = {
@@ -82,7 +82,7 @@ angular.module('starter.controllers', [])
 
                     }, function(error) {
                         $ionicLoading.hide();
-                        console.log('Could not get position: ', error);
+                        console.error('Could not get position: ', error);
                     });
             }
 
@@ -95,5 +95,15 @@ angular.module('starter.controllers', [])
             ionic.Platform.ready(function() {
                 // Start with refresh
                 $scope.refresh();
+
+                // Keep awake while active
+                window.plugins.insomnia.keepAwake(
+                    function() {
+                        console.log('Screen will be kept active');
+                    },
+                    function(error) {
+                        console.error('Screen can not be kept active: ', error);
+                    }
+                );
             });
         }]);
